@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Infolists;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Filament\Infolists\Components\ViewEntry;
 
 class ProposalResource extends Resource
 {
@@ -22,7 +23,7 @@ class ProposalResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    
+
     public static function canCreate(): bool
     {
         return false;
@@ -30,42 +31,46 @@ class ProposalResource extends Resource
 
     public static function infolist(Infolist $infolist): Infolist
     {
-       return $infolist
-    ->schema([
-        Infolists\Components\TextEntry::make('title')
-        ->color('primary'),
-        Infolists\Components\TextEntry::make('status')
-        ->badge()
-        ->color(fn (string $state): string => match ($state) {
-            'Pending' => 'warning',
-            'Accepted by BAKA' => 'info',
-            'Accepted by WR3' => 'success',
-            'Rejected' => 'danger',
-        }),
-        Infolists\Components\TextEntry::make('tanggal_kegiatan_mulai')
-        ->color('primary'),
-        Infolists\Components\TextEntry::make('tanggal_kegiatan_selesai')
-        ->color('primary'),
-        Infolists\Components\TextEntry::make('jam_mulai')
-        ->color('primary'),
-        Infolists\Components\TextEntry::make('jam_selesai')
-        ->color('primary'),
-        Infolists\Components\TextEntry::make('tempat_kegiatan')
-        ->color('primary'),
-        Infolists\Components\TextEntry::make('pelaksana_kegiatan')
-        ->color('primary'),
-    ]);
+        return $infolist
+            ->schema([
+                Infolists\Components\Grid::make(2)->schema([
+                    Infolists\Components\TextEntry::make('title')
+                        ->color('primary'),
+                    Infolists\Components\TextEntry::make('status')
+                        ->badge()
+                        ->color(fn (string $state): string => match ($state) {
+                            'Pending' => 'warning',
+                            'Accepted by BAKA' => 'info',
+                            'Accepted by WR3' => 'success',
+                            'Rejected' => 'danger',
+                        }),
+                    Infolists\Components\TextEntry::make('tanggal_kegiatan_mulai')
+                        ->color('primary'),
+                    Infolists\Components\TextEntry::make('tanggal_kegiatan_selesai')
+                        ->color('primary'),
+                    Infolists\Components\TextEntry::make('jam_mulai')
+                        ->color('primary'),
+                    Infolists\Components\TextEntry::make('jam_selesai')
+                        ->color('primary'),
+                    Infolists\Components\TextEntry::make('tempat_kegiatan')
+                        ->color('primary'),
+                    Infolists\Components\TextEntry::make('pelaksana_kegiatan')
+                        ->color('primary'),
+                ]),
+                Infolists\Components\ViewEntry::make('pdf')
+                    ->view('filament.infolists.entries.preview-pdf'),
+            ])->columns(1);
     }
 
     public static function table(Table $table): Table
     {
         return $table
-        ->columns([
-            Tables\Columns\TextColumn::make('title')
-                ->searchable(),
-            Tables\Columns\TextColumn::make('pdf')->label('Proposal File'),
-            Tables\Columns\TextColumn::make('created_at')->label('Submitted At'),
-            Tables\Columns\TextColumn::make('status')
+            ->columns([
+                Tables\Columns\TextColumn::make('title')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('pdf')->label('Proposal File'),
+                Tables\Columns\TextColumn::make('created_at')->label('Submitted At'),
+                Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
@@ -74,9 +79,9 @@ class ProposalResource extends Resource
                         'Accepted by WR3' => 'success',
                         'Rejected' => 'danger',
                     })
-                    ->searchable(), 
-            
-        ])
+                    ->searchable(),
+
+            ])
             ->filters([
                 //
             ])
@@ -91,7 +96,7 @@ class ProposalResource extends Resource
             ]);
     }
 
-    
+
     public static function getRelations(): array
     {
         return [
